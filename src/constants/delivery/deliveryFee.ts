@@ -22,7 +22,7 @@ export type ShippingMethodKeyType =
   | 'noSelect';
 
 export const DELIVERY_FEE = {
-  delivery100: { merukari: 105, paypay: 1000, rakuma: 1150 },
+  delivery100: { merukari: 1050, paypay: 1000, rakuma: 1150 },
   delivery120: { merukari: 1200, paypay: 1100, rakuma: 1350 },
   delivery140: { merukari: 1450, paypay: 1300, rakuma: 1550 },
   delivery160: { merukari: 1700, paypay: 1600, rakuma: 1800 },

@@ -12,16 +12,17 @@ export const useMainPageHook = () => {
   const [sellingPrice, setSellingPrice] = useState<number>(0);
   const [shippingMethod, setShippingMethod] =
     useState<ShippingMethodKeyType>('noSelect');
+
   const [profit, setProfit] = useState({
-    merukari: { commission: 0, fee: 0, profit: 0 },
-    paypay: { commission: 0, fee: 0, profit: 0 },
-    rakuma: { commission: 0, fee: 0, profit: 0 },
+    merukari: { commission: 0, fee: 0, resultNumber: 0 },
+    paypay: { commission: 0, fee: 0, resultNumber: 0 },
+    rakuma: { commission: 0, fee: 0, resultNumber: 0 },
   });
 
   const [profit1, setProfit1] = useState({
-    merukari: { commission: 0, fee: 0, sellingPrice: 0 },
-    paypay: { commission: 0, fee: 0, sellingPrice: 0 },
-    rakuma: { commission: 0, fee: 0, sellingPrice: 0 },
+    merukari: { commission: 0, fee: 0, resultNumber: 0 },
+    paypay: { commission: 0, fee: 0, resultNumber: 0 },
+    rakuma: { commission: 0, fee: 0, resultNumber: 0 },
   });
 
   const onClickProfitCalculate = () => {
@@ -43,17 +44,17 @@ export const useMainPageHook = () => {
       merukari: {
         commission: merukariCommission,
         fee: merukariDeliveryFee,
-        profit: merukariProfit,
+        resultNumber: merukariProfit,
       },
       paypay: {
         commission: paypayCommission,
         fee: paypayDeliveryFee,
-        profit: paypayProfit,
+        resultNumber: paypayProfit,
       },
       rakuma: {
         commission: rakumaCommission,
         fee: rakumaDeliveryFee,
-        profit: rakumaProfit,
+        resultNumber: rakumaProfit,
       },
     });
   };
@@ -63,18 +64,21 @@ export const useMainPageHook = () => {
     const b = 10;
     const c = 9.34;
     const rakumaSellingPrice = Math.floor((a * b) / c);
+    const rakumaCommission = Math.floor(rakumaSellingPrice * 0.066);
 
     const d = Number(sellingPrice) + DELIVERY_FEE[shippingMethod]['merukari'];
     const e = 10;
     const f = 9;
 
     const merukariSellingPrice = Math.floor((d * e) / f);
+    const merukariCommission = Math.floor(merukariSellingPrice * 0.1);
 
     const g = Number(sellingPrice) + DELIVERY_FEE[shippingMethod]['paypay'];
     const h = 10;
     const i = 9.5;
 
     const paypaySellingPrice = Math.floor((g * h) / i);
+    const paypayCommission = Math.floor(paypaySellingPrice * 0.05);
 
     const rakumaDeliveryFee = DELIVERY_FEE[shippingMethod]['rakuma'];
     const merukariDeliveryFee = DELIVERY_FEE[shippingMethod]['merukari'];
@@ -83,19 +87,19 @@ export const useMainPageHook = () => {
     setProfit1({
       ...profit1,
       merukari: {
-        commission: 0,
+        commission: merukariCommission,
         fee: merukariDeliveryFee,
-        sellingPrice: merukariSellingPrice,
+        resultNumber: merukariSellingPrice,
       },
       paypay: {
-        commission: 0,
+        commission: paypayCommission,
         fee: paypayDeliveryFee,
-        sellingPrice: paypaySellingPrice,
+        resultNumber: paypaySellingPrice,
       },
       rakuma: {
-        commission: 0,
+        commission: rakumaCommission,
         fee: rakumaDeliveryFee,
-        sellingPrice: rakumaSellingPrice,
+        resultNumber: rakumaSellingPrice,
       },
     });
   };

@@ -24,8 +24,8 @@ export type BaseStatProps = StatProps & {
 
 export const BaseStat: FC<BaseStatProps> = ({ statNumber, ...props }) => {
   return (
-    <Flex mt="2rem">
-      <Stat backgroundColor="#fc0339" borderWidth={1} color="white" p="1rem">
+    <Flex mt="2rem" {...props}>
+      <Stat backgroundColor="#fc0339" borderWidth={1} color="white" p="0.6rem">
         <StatLabel>メルカリ</StatLabel>
         <StatNumber>{`￥${statNumber.merukari.resultNumber}`}</StatNumber>
         <StatHelpText>{`手数料￥${statNumber.merukari.commission}`}</StatHelpText>

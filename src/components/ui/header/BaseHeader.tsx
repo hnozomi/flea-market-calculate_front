@@ -1,4 +1,4 @@
-import { Box, BoxProps, HStack } from '@chakra-ui/react';
+import { Box, BoxProps, HStack, Text } from '@chakra-ui/react';
 import { FC } from 'react';
 
 type BaseHeaderProps = BoxProps;
@@ -6,14 +6,16 @@ type BaseHeaderProps = BoxProps;
 export const BaseHeader: FC<BaseHeaderProps> = ({ ...props }) => {
   return (
     <HStack
-      bgColor="black"
+      bgColor="green"
       color="white"
       h="5rem"
       justifyContent="space-between"
       {...props}
     >
       <Box pl="1rem" py="0.5rem">
-        フリマ計算
+        <Text as="b" fontSize="2xl">
+          フリマ計算
+        </Text>
       </Box>
     </HStack>
   );

@@ -5,7 +5,7 @@ export type BaseButtonProps = ButtonProps;
 
 export const BaseButton: FC<BaseButtonProps> = ({ children, ...props }) => {
   return (
-    <Button mt="1rem" {...props}>
+    <Button colorScheme="green" mt="1rem" {...props}>
       {children}
     </Button>
   );

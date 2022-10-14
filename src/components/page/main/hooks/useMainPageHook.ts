@@ -1,114 +1,142 @@
 import { useState } from 'react';
 
-import { DELIVERY_FEE, ShippingMethodKeyType } from '@/constants';
+import {
+  COMMISSION_FEE,
+  DELIVERY_FEE,
+  ShippingMethodKeyType,
+} from '@/constants';
 
 export const useMainPageHook = () => {
-  const FEE = {
-    merukari: 0.1,
-    paypay: 0.05,
-    rakuma: 0.06,
-  };
-
   const [sellingPrice, setSellingPrice] = useState<number>(0);
   const [shippingMethod, setShippingMethod] =
     useState<ShippingMethodKeyType>('noSelect');
 
-  const [profit, setProfit] = useState({
+  const [CalculationResult, setProfit] = useState({
     merukari: { commission: 0, fee: 0, resultNumber: 0 },
     paypay: { commission: 0, fee: 0, resultNumber: 0 },
     rakuma: { commission: 0, fee: 0, resultNumber: 0 },
   });
 
-  const [profit1, setProfit1] = useState({
-    merukari: { commission: 0, fee: 0, resultNumber: 0 },
-    paypay: { commission: 0, fee: 0, resultNumber: 0 },
-    rakuma: { commission: 0, fee: 0, resultNumber: 0 },
-  });
+  const [selected, setSelected] = useState('sellingPrice');
+  const [displayText, setDisplayText] = useState('販売価格');
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const onClickProfitCalculate = () => {
-    const rakumaCommission = Math.floor(sellingPrice * FEE.rakuma);
-    const merukariCommission = Math.floor(sellingPrice * FEE.merukari);
-    const paypayCommission = Math.floor(sellingPrice * FEE.paypay);
-
-    const rakumaDeliveryFee = DELIVERY_FEE[shippingMethod]['rakuma'];
-    const merukariDeliveryFee = DELIVERY_FEE[shippingMethod]['merukari'];
-    const paypayDeliveryFee = DELIVERY_FEE[shippingMethod]['paypay'];
-
-    const rakumaProfit = sellingPrice - rakumaCommission - rakumaDeliveryFee;
-    const merukariProfit =
-      sellingPrice - merukariCommission - merukariDeliveryFee;
-    const paypayProfit = sellingPrice - paypayCommission - paypayDeliveryFee;
-
-    setProfit({
-      ...profit,
-      merukari: {
-        commission: merukariCommission,
-        fee: merukariDeliveryFee,
-        resultNumber: merukariProfit,
-      },
-      paypay: {
-        commission: paypayCommission,
-        fee: paypayDeliveryFee,
-        resultNumber: paypayProfit,
-      },
-      rakuma: {
-        commission: rakumaCommission,
-        fee: rakumaDeliveryFee,
-        resultNumber: rakumaProfit,
-      },
-    });
+  // どの計算を行うか
+  const onChangeMethodOfCalculation = (selectedValue: string) => {
+    const title =
+      selectedValue === 'sellingPrice' ? '販売価格' : '確保したい利益';
+    setDisplayText(title);
+    setSelected(selectedValue);
   };
 
-  const onClickSellingPriceCalculate = () => {
-    const a = Number(sellingPrice) + DELIVERY_FEE[shippingMethod]['rakuma'];
-    const b = 10;
-    const c = 9.34;
-    const rakumaSellingPrice = Math.floor((a * b) / c);
-    const rakumaCommission = Math.floor(rakumaSellingPrice * 0.066);
+  //
+  const calculateCommission = (sellingPrice: number) => {
+    const rakumaCommission = Math.floor(sellingPrice * COMMISSION_FEE.rakuma);
+    const merukariCommission = Math.floor(
+      sellingPrice * COMMISSION_FEE.merukari,
+    );
+    const paypayCommission = Math.floor(sellingPrice * COMMISSION_FEE.paypay);
 
-    const d = Number(sellingPrice) + DELIVERY_FEE[shippingMethod]['merukari'];
-    const e = 10;
-    const f = 9;
+    return { merukariCommission, paypayCommission, rakumaCommission };
+  };
 
-    const merukariSellingPrice = Math.floor((d * e) / f);
-    const merukariCommission = Math.floor(merukariSellingPrice * 0.1);
+  const calculateProfit = () => {
+    // 手数料を算出後、利益を求める トグルの一番上
+    const { merukariCommission, paypayCommission, rakumaCommission } =
+      calculateCommission(sellingPrice);
 
-    const g = Number(sellingPrice) + DELIVERY_FEE[shippingMethod]['paypay'];
-    const h = 10;
-    const i = 9.5;
+    const rakumaResult =
+      sellingPrice - rakumaCommission - DELIVERY_FEE[shippingMethod]['rakuma'];
+    const merukariResult =
+      sellingPrice -
+      merukariCommission -
+      DELIVERY_FEE[shippingMethod]['merukari'];
+    const paypayResult =
+      sellingPrice - paypayCommission - DELIVERY_FEE[shippingMethod]['paypay'];
 
-    const paypaySellingPrice = Math.floor((g * h) / i);
-    const paypayCommission = Math.floor(paypaySellingPrice * 0.05);
+    return {
+      merukariCommission,
+      merukariResult,
+      paypayCommission,
+      paypayResult,
+      rakumaCommission,
+      rakumaResult,
+    };
+  };
 
-    const rakumaDeliveryFee = DELIVERY_FEE[shippingMethod]['rakuma'];
-    const merukariDeliveryFee = DELIVERY_FEE[shippingMethod]['merukari'];
-    const paypayDeliveryFee = DELIVERY_FEE[shippingMethod]['paypay'];
+  const calculateSellingPrice = () => {
+    // 販売価格を算出後、手数料も計算する。トグルの一番下
+    const rakumaResult = Math.floor(
+      ((sellingPrice + DELIVERY_FEE[shippingMethod]['rakuma']) * 10) / 9.34,
+    );
+    const { rakumaCommission } = calculateCommission(rakumaResult);
 
-    setProfit1({
-      ...profit1,
+    const merukariResult = Math.floor(
+      ((sellingPrice + DELIVERY_FEE[shippingMethod]['merukari']) * 10) / 9,
+    );
+    const { merukariCommission } = calculateCommission(merukariResult);
+
+    const paypayResult = Math.floor(
+      ((sellingPrice + DELIVERY_FEE[shippingMethod]['paypay']) * 10) / 9.5,
+    );
+    const { paypayCommission } = calculateCommission(paypayResult);
+
+    return {
+      merukariCommission,
+      merukariResult,
+      paypayCommission,
+      paypayResult,
+      rakumaCommission,
+      rakumaResult,
+    };
+  };
+
+  //====================================================================================
+
+  const onClickProfitCalculate = () => {
+    if (shippingMethod === 'noSelect') {
+      setErrorMessage('配送方法を選択してください');
+      return;
+    }
+
+    const {
+      merukariCommission,
+      merukariResult,
+      paypayCommission,
+      paypayResult,
+      rakumaCommission,
+      rakumaResult,
+    } =
+      selected === 'sellingPrice' ? calculateProfit() : calculateSellingPrice();
+
+    setProfit({
+      ...CalculationResult,
       merukari: {
         commission: merukariCommission,
-        fee: merukariDeliveryFee,
-        resultNumber: merukariSellingPrice,
+        fee: DELIVERY_FEE[shippingMethod]['merukari'],
+        resultNumber: merukariResult,
       },
       paypay: {
         commission: paypayCommission,
-        fee: paypayDeliveryFee,
-        resultNumber: paypaySellingPrice,
+        fee: DELIVERY_FEE[shippingMethod]['paypay'],
+        resultNumber: paypayResult,
       },
       rakuma: {
         commission: rakumaCommission,
-        fee: rakumaDeliveryFee,
-        resultNumber: rakumaSellingPrice,
+        fee: DELIVERY_FEE[shippingMethod]['rakuma'],
+        resultNumber: rakumaResult,
       },
     });
   };
 
   return {
+    CalculationResult,
+    displayText,
+    errorMessage,
+    onChangeMethodOfCalculation,
     onClickProfitCalculate,
-    onClickSellingPriceCalculate,
-    profit,
-    profit1,
+    selected,
+    setErrorMessage,
     setSellingPrice,
     setShippingMethod,
   };
